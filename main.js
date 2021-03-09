@@ -22,9 +22,70 @@ const mystery5 = [4, 9, 1, 3, 5, 4, 0, 4, 6, 3, 0, 7, 2, 5, 2, 3]
 // An array of all the arrays above
 const batch = [valid1, valid2, valid3, valid4, valid5, invalid1, invalid2, invalid3, invalid4, invalid5, mystery1, mystery2, mystery3, mystery4, mystery5]
 
+// An array of all card companies
+const companies = [{digit: 3, name: 'Amex'}, {digit: 4, name: 'Visa'}, {digit: 5, name: 'Mastercard'}, {digit: 6, name: 'Discover'}];
+
 
 // Add your functions below:
 
+// Converts a card string to an array of numbers
+const convertToArray = cardString => cardString.split('').map(x => parseInt(x));
+
+// Validates the Credit Card
+const validateCred = cardToCheck => {
+    let size = cardToCheck.length - 1;
+    let luhnArray = [];
+    let sum = 0;
+
+    for (let i = size; i >= 0; i--) {
+        if (!((size - (1 - i)) % 2)) {
+            let aux = cardToCheck[i] * 2;
+            if (aux > 9)
+                aux -= 9;
+
+            luhnArray.unshift(aux);
+        }
+        else
+            luhnArray.unshift(cardToCheck[i]);
+    }
+
+    sum = luhnArray.reduce((acc, currentValue) => acc + currentValue);
+
+    return !(sum % 10);
+}
+
+// Finds all the invalid cards from a determined batch
+const findInvalidCards = cardBatch => cardBatch.filter(card => !validateCred(card));
+
+// Identifies the invalid cards manufactors
+const idInvalidCardCompanies = invalidArr => {
+    let cardToCheck = [];
+
+    for (let i = 0; i < invalidArr.length; i++) {
+        for (let j = 0; j < companies.length; j++) {
+            if (invalidArr[i][0] === companies[j].digit && !cardToCheck.includes(companies[j].name))
+                cardToCheck.push(companies[j].name);
+        }
+    }
+
+    return cardToCheck;
+}
+
+
+
+console.log(validateCred(convertToArray('5020630329778616')));
+
+let checkedCards = batch.map(card => validateCred(card));
+console.log(`From the batch we conclude: `);
+console.log(checkedCards);
+
+let invalidCards = findInvalidCards(batch);
+console.log(`This are the invalid cards: `);
+console.log(invalidCards);
+
+let companiesID = idInvalidCardCompanies(invalidCards);
+console.log(`This are the id's from the companies that mailed out the invalid cards: `);
+console.log(companiesID);
 
 
 
