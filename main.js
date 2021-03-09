@@ -71,21 +71,77 @@ const idInvalidCardCompanies = invalidArr => {
     return cardToCheck;
 }
 
+// Converts invalid card into a valid card
+const convertInvalidCardToValid = invalidCard => {
+    let size = invalidCard.length - 1;
+    let checkDigit = 0;
+    let luhnArray = [];
+    let sum = 0;
+    let unitDigit = 0;
 
+    for (let i = size; i >= 0; i--) {
+        if (i === size) {
+            invalidCard.pop();
+            continue;
+        }
+
+        if (!((size - (1 - i)) % 2)) {
+            let aux = invalidCard[i] * 2;
+            if (aux > 9)
+                aux -= 9;
+
+            luhnArray.unshift(aux);
+        }
+        else
+            luhnArray.unshift(invalidCard[i]);
+    }
+
+    sum = luhnArray.reduce((acc, currentValue) => acc + currentValue);
+
+    // Gets the unit digit
+    unitDigit = sum % 10;
+
+    // If 0 then check digit must be 0 ; Only numbers from 0 - 9 are permitted
+    if (unitDigit != 0)
+        checkDigit = 10 - unitDigit;
+    
+    invalidCard.push(checkDigit);
+    return invalidCard;
+}
+
+// Coverts an aray of invalid cards into an array of valid cards
+const invalidToValidCards = invalidArr => invalidArr.map(card => convertInvalidCardToValid(card));
+
+
+// Tests
 
 console.log(validateCred(convertToArray('5020630329778616')));
+
+console.log('\n--------- NEXT TEST ---------\n');
 
 let checkedCards = batch.map(card => validateCred(card));
 console.log(`From the batch we conclude: `);
 console.log(checkedCards);
 
+console.log('\n--------- NEXT TEST ---------\n');
+
 let invalidCards = findInvalidCards(batch);
 console.log(`This are the invalid cards: `);
 console.log(invalidCards);
 
+console.log('\n--------- NEXT TEST ---------\n');
+
 let companiesID = idInvalidCardCompanies(invalidCards);
 console.log(`This are the id's from the companies that mailed out the invalid cards: `);
 console.log(companiesID);
+
+console.log('\n--------- NEXT TEST ---------\n');
+
+let convertedToValid = invalidToValidCards(invalidCards);
+console.log(`The previous invalid numbers converted to valid numbers: `);
+console.log(convertedToValid);
+console.log(`\nAs you can see: `);
+console.log(convertedToValid.map(card => validateCred(card)));
 
 
 
